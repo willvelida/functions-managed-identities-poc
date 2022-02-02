@@ -19,6 +19,12 @@
         },
         "appInsightsName": {
             "value": "velidafamiappinsights"
+        },
+        "serviceBusName": {
+            "value": "velidafamisb"
+        },
+        "queueName": {
+            "value": "myinputqueue"
         }
     }
 }

@@ -6,6 +6,8 @@ param appServicePlanName string
 param functionAppName string
 param storageAccountName string
 param appInsightsName string
+param serviceBusName string
+param queueName string
 
 module keyVault 'modules/keyVault.bicep' = {
   name: 'keyVault'
@@ -35,6 +37,10 @@ module appInsights 'modules/appInsights.bicep' = {
   }
 }
 
+resource kv 'Microsoft.KeyVault/vaults@2021-06-01-preview' existing = {
+  name: keyVaultName
+}
+
 module functionApp 'modules/function.bicep' = {
   name: 'functionApp'
   params: {
@@ -47,6 +53,16 @@ module functionApp 'modules/function.bicep' = {
       '${keyVaultUserIdentity.outputs.resourceId}' : {}
     }
     keyVaultReferenceIdentity: keyVaultUserIdentity.outputs.resourceId
-    keyVaultName: keyVaultName
+    keyVaultName: kv.name
+    serviceBusName: serviceBusName
+  }
+}
+
+module serviceBus 'modules/serviceBus.bicep' = {
+  name: 'serviceBus'
+  params: {
+    queueName: queueName
+    serviceBusLocation: location
+    serviceBusName: serviceBusName
   }
 }

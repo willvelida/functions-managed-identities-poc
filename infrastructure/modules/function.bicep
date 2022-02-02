@@ -22,6 +22,9 @@ param keyVaultReferenceIdentity string
 @description('Name of the key vault to add secrets to')
 param keyVaultName string
 
+@description('Name of the Service Bus Namespace that this function listens to')
+param serviceBusName string
+
 param functionRuntime string = 'dotnet'
 
 resource functionApp 'Microsoft.Web/sites@2021-02-01' = {
@@ -33,8 +36,8 @@ resource functionApp 'Microsoft.Web/sites@2021-02-01' = {
     siteConfig: {
       appSettings: [
         {
-          name: 'AzureWebJobsStorage'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, storageAccount.apiVersion).keys[0].value}'
+          name: 'AzureWebJobsStorage_accountName'
+          value: '${storageAccount.name}'
         }
         {
           name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
@@ -55,6 +58,10 @@ resource functionApp 'Microsoft.Web/sites@2021-02-01' = {
         {
           name: 'FUNCTIONS_EXTENSION_VERSION'
           value: '~3'
+        }
+        {
+          name: 'ServiceBusConnection__fullyQualifiedNamespace'
+          value: '${serviceBusName}.servicebus.windows.net'
         }
       ]
     }
@@ -90,8 +97,12 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-06-01' = {
   }
 }
 
+resource kv 'Microsoft.KeyVault/vaults@2021-06-01-preview' existing = {
+  name: keyVaultName
+}
+
 resource azureFilesConnectionSecret 'Microsoft.KeyVault/vaults/secrets@2021-06-01-preview' = {
-  name: '${keyVaultName}/azurefilesconnectionstring'
+  name: '${kv.name}/azurefilesconnectionstring'
   properties: {
     value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, storageAccount.apiVersion).keys[0].value}'
   }
