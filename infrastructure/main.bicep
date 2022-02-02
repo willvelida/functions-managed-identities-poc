@@ -12,10 +12,11 @@ module keyVault 'modules/keyVault.bicep' = {
   params: {
     keyVaultLocation: location
     keyVaultName: keyVaultName
-    roleNameGuid: roleNameGuid
-    principalId: keyVaultUserIdentity.outputs.principalId
-    roleDefinitionId: '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/4633458b-17de-408a-b874-0445c86b69e6'
   }
+}
+
+resource kvRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-08-01-preview' existing = {
+  name: roleNameGuid
 }
 
 module keyVaultUserIdentity 'modules/userManagedIdentities.bicep' = {
@@ -46,5 +47,6 @@ module functionApp 'modules/function.bicep' = {
       '${keyVaultUserIdentity.outputs.resourceId}' : {}
     }
     keyVaultReferenceIdentity: keyVaultUserIdentity.outputs.resourceId
+    keyVaultName: keyVaultName
   }
 }

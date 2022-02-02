@@ -19,6 +19,9 @@ param appInsightsInstrumentationKey string
 @description('Identity Resource Id for the Key Vault')
 param keyVaultReferenceIdentity string
 
+@description('Name of the key vault to add secrets to')
+param keyVaultName string
+
 param functionRuntime string = 'dotnet'
 
 resource functionApp 'Microsoft.Web/sites@2021-02-01' = {
@@ -84,6 +87,13 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-06-01' = {
   properties: {
     supportsHttpsTrafficOnly: true
     accessTier: 'Hot'
+  }
+}
+
+resource azureFilesConnectionSecret 'Microsoft.KeyVault/vaults/secrets@2021-06-01-preview' = {
+  name: '${keyVaultName}/azurefilesconnectionstring'
+  properties: {
+    value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, storageAccount.apiVersion).keys[0].value}'
   }
 }
 
