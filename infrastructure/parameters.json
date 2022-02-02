@@ -7,6 +7,18 @@
         },
         "keyVaultUserIdentityName": {
             "value": "velidafakvidentity"
+        },
+        "appServicePlanName": {
+            "value": "velidafamiplan"
+        },
+        "functionAppName": {
+            "value": "velidafamifunc"
+        },
+        "storageAccountName": {
+            "value": "velidafamistorage"
+        },
+        "appInsightsName": {
+            "value": "velidafamiappinsights"
         }
     }
 }
